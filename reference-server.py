@@ -1,11 +1,10 @@
-#!flask/bin/python
+#!/usr/bin/env python3
 
-"""Alternative version of the ToDo RESTful server implemented using the
-Flask-RESTful extension."""
+from flask import Flask, jsonify, abort, make_response, Response
+from flask import render_template
+from flask_restful import Api, Resource, reqparse, fields, marshal
+from flask_httpauth import HTTPBasicAuth
 
-from flask import Flask, jsonify, abort, make_response
-from flask.ext.restful import Api, Resource, reqparse, fields, marshal
-from flask.ext.httpauth import HTTPBasicAuth
 
 app = Flask(__name__, static_url_path="")
 api = Api(app)
@@ -14,7 +13,7 @@ auth = HTTPBasicAuth()
 
 @auth.get_password
 def get_password(username):
-    if username == 'miguel':
+    if username == 'jared':
         return 'python'
     return None
 
@@ -28,16 +27,30 @@ def unauthorized():
 tasks = [
     {
         'id': 1,
-        'title': u'Buy groceries',
-        'description': u'Milk, Cheese, Pizza, Fruit, Tylenol',
-        'done': False
+        'title': 'Go to KnoxPy',
+        'description': 'Present on building REST APIs in Python',
+        'done': True
     },
     {
         'id': 2,
-        'title': u'Learn Python',
-        'description': u'Need to find a good Python tutorial on the web',
+        'title': 'Go to BSides Knoxville',
+        'description': 'Learn about infosec!',
         'done': False
-    }
+    },
+    {
+        'id': 3,
+        'title': 'Present at BSides Knoxville',
+        'description': 'Be at the KEC at 9 to talk about Cross-Site Scripting',
+        'done': False
+    },
+
+    {
+        'id': 4,
+        'title': 'Present at Codestock',
+        'description': 'Demo forensic analysis of a Windows machine infected by Stuxnet',
+        'done': False
+    },
+
 ]
 
 task_fields = {
@@ -65,8 +78,13 @@ class TaskListAPI(Resource):
 
     def post(self):
         args = self.reqparse.parse_args()
+        task_id = None
+        if len(tasks) == 0:
+            task_id = 1
+        else:
+            task_id = tasks[-1]['id'] + 1
         task = {
-            'id': tasks[-1]['id'] + 1,
+            'id': task_id,
             'title': args['title'],
             'description': args['description'],
             'done': False
@@ -110,6 +128,12 @@ class TaskAPI(Resource):
         return {'result': True}
 
 
+class Home(Resource):
+    def get(self):
+        return Response(render_template('index.html'), mimetype='text/html')
+
+
+api.add_resource(Home, '/', endpoint='home')
 api.add_resource(TaskListAPI, '/todo/api/v1.0/tasks', endpoint='tasks')
 api.add_resource(TaskAPI, '/todo/api/v1.0/tasks/<int:id>', endpoint='task')
 
