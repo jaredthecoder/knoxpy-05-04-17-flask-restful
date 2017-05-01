@@ -12,4 +12,4 @@ NOTE: You might need to have CORS disabled or a CORS plugin enabled (For example
 
 ## Credits
 
-Thanks to Michael Grinberg for his original tutorial on this which I modifed.
+Thanks to Miguel Grinberg for his original tutorial on this which I modifed.
